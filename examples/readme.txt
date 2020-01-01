@@ -1,1 +1,1 @@
-Here you'll find Arduino examples for MKR CRMX TimoTwo shield.
+Here you'll find Arduino examples for the MKR CRMX TimoTwo shield.
