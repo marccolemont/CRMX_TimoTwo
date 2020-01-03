@@ -1,5 +1,5 @@
 # CRMX_TimoTwo Library
-CRMX TimoTwo Library for CRMX TimoTwo MKR Shield
+CRMX TimoTwo Library for CRMX TimoTwo MKR Shield (release Q2 2020)
 
 ![](images/MKR-CRMXTimoTwo.png)
 Library works on the CRMX TimoTwo shield
