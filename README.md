@@ -8,7 +8,8 @@ Library works on the CRMX TimoTwo shield
 - 4 LED's on lightguide for status & RF receiving quality
 - 1 RGB LED on lightguide with Universe color
 - Button to Link two devices / clear linking
-- 6 pin header with RX/TX and control signals for extention board with 5-Pin XLR galvanic shielded DMX-512
+- 6 pin header with RX/TX and control signals (3V3 compatible) 
+  for extention board with 5-Pin XLR galvanic shielded DMX-512
   - Pin 1: DMX_TXD
   - Pin 2: GND
   - Pin 3: DMX_RXD
