@@ -8,7 +8,7 @@ Hardware:
 - MKR shield board compatible using only SPI and Pin 5 Select / Pin 6 IRQ
 - Based on RadioLumen CRMX TimoTwo transceiver with external antenna
 - ANSI E1.11 - DMX512-A and ANSI E1.20 - RDM
-- Auto selection of the 88 channels possible 2402-2480 MHz (no WiFi connection)
+- Auto selection of the 88 channels possible 2402-2480 MHz (no WiFi connection) Dynamically avoids occupied frequencies.
 - 4 LED's on lightguide for status & RF receiving quality
 - 1 RGB LED on lightguide with Universe color
 - Button to Link two devices / clear linking
