@@ -3,7 +3,8 @@ CRMX TimoTwo Library for CRMX TimoTwo MKR Shield
 
 ![](images/MKR-CRMXTimoTwo.png)
 Library works on the CRMX TimoTwo shield
-- MKR shield board compatible
+Hardware:
+- MKR shield board compatible using only SPI and Pin 5 Select / Pin 6 IRQ
 - Based on RadioLumen CRMX TimoTwo transceiver with external antenna
 - 4 LED's on lightguide for status & RF receiving quality
 - 1 RGB LED on lightguide with Universe color
@@ -16,9 +17,12 @@ Library works on the CRMX TimoTwo shield
   - Pin 4: RS485_DE
   - Pin 5: RS485_RE
   - Pin 6: 3V3
+- On board voltage convertors (VIN) to 3V3 and 1V8 to avoid current load on MKR 1000 compatible boards 
+
+Firmware:
 - SPI library to control:
   - Receiver / Transmitter mode
-  - Data tranmission / receiving of the DMX universe. RX/TX is not connected to the MKR shield.
+  - Data tranmission / receiving of the DMX universe through SPI. RX/TX is not connected to the MKR shield.
     That way the external DMX-512 RX/TX is generated in the TimoTwo chip taking off CPU load on the MKR Arm processor.
   - Settings for TX DMX-512 timings (refresh period / time between channels / amount of channels)
   - IRQ settings and flag control for RF reception, new DMX values etc...
