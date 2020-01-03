@@ -22,7 +22,7 @@ Library works on the CRMX TimoTwo shield
   - Data tranmission / receiving of the DMX universe. RX/TX is not connected to the MKR shield.
     That way the external DMX-512 RX/TX is generated in the TimoTwo chip taking off CPU load on the MKR Arm processor.
   - IRQ settings and flag control for RF reception, new DMX values etc...
-  - DMX window
+  - RX DMX window settings (Start adress and length of window)
   - Hardware version / firmware version UID readout
   
 Copyright (c) 2020 MC-Productions.be
