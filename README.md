@@ -34,7 +34,7 @@ Firmware:
   - IRQ settings and flag control for RF reception, new DMX values etc...
   - RX DMX window settings (Start adress and length of window) for easy implementation of creating a DMX fixture.
   - ASC frame start code and frame receiver
-  - Masking of the 88 TX channels.
+  - Masking of the 88 available TX channels (for fixed installations).
   - Hardware version / firmware version UID readout
 - No need for DMX or RS485 libraries. Can also be used without the RF capability to generate external DMX-512 RX/TX ANSI E1.11 DMX512-A and ANSI E1.20 RDM compliant signals.
   
