@@ -31,5 +31,6 @@ Firmware:
   - IRQ settings and flag control for RF reception, new DMX values etc...
   - RX DMX window settings (Start adress and length of window)
   - Hardware version / firmware version UID readout
+- No need for DMX or RS485 libraries. Can also be used without the RF capability to generate external DMX-512 RX/TX ANSI E1.11 DMX512-A and ANSI E1.20 RDM compliant signals.
   
 Copyright (c) 2020 MC-Productions.be
