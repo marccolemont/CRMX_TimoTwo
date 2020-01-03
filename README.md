@@ -19,13 +19,14 @@ Hardware:
   - Pin 4: RS485_DE
   - Pin 5: RS485_RE
   - Pin 6: 3V3
-- On board voltage convertors (VIN) to 3V3 and 1V8 to avoid current load on MKR 1000 compatible boards 
+- On board voltage convertors (VIN 5V) to 3V3 and 1V8 to avoid current load on MKR xxxx compatible boards 
 
 Firmware:
 - SPI library to control:
   - Receiver / Transmitter / RF modes
   - Data tranmission / receiving of the DMX universe through SPI. RX/TX is not connected to the MKR shield.
-    DMX-512 RX/TX is generated in the TimoTwo chip taking off CPU load on the MKR Arm processor. No need for DMX or RS485 libraries. Can also be used without the RF capability to generate external DMX-512 RX/TX ANSI E1.11 DMX512-A and ANSI E1.20 RDM compliant signals.
+    DMX-512 RX/TX is generated in the TimoTwo chip taking off CPU load on the MKR Arm processor. 
+  - No need for DMX or RS485 libraries. Can also be used without the RF capability to generate external DMX-512 RX/TX ANSI E1.11 DMX512-A and ANSI E1.20 RDM compliant signals.
   - Settings for TX DMX-512 timings (refresh period / time between channels / amount of channels)
   - IRQ settings and flag control for RF reception, new DMX values etc...
   - RX DMX window settings (Start adress and length of window)
