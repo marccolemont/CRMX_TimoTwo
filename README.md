@@ -21,7 +21,7 @@ Hardware:
   - Pin 5: RS485_RE
   - Pin 6: 3V3
 - On board voltage convertors (VIN 5V) to 3V3 and 1V8 to avoid current load on MKR xxxx compatible boards
-- The TimoTwo module comprises a BLE based interface that allows for configuration of the device as well as transfer of DMX data to the device.
+- The TimoTwo module comprises a BLE based interface that allows for configuration of the device as well as transfer of DMX data to the device like for example Luminair iPad software.
 
 Firmware:
 - SPI library to control:
