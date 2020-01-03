@@ -20,7 +20,7 @@ Library works on the CRMX TimoTwo shield
   - Receiver / Transmitter mode
   - Settings for DMX-512 timings
   - Data tranmission / receiving of the DMX universe
-  - IRQ settings
+  - IRQ settings and flag control for RF reception, new DMX values etc...
   - DMX window
   - Hardware version / firmware version UID readout
   
