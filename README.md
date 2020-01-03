@@ -24,7 +24,7 @@ Firmware:
 - SPI library to control:
   - Receiver / Transmitter mode
   - Data tranmission / receiving of the DMX universe through SPI. RX/TX is not connected to the MKR shield.
-    That way the external DMX-512 RX/TX is generated in the TimoTwo chip taking off CPU load on the MKR Arm processor.
+    DMX-512 RX/TX is generated in the TimoTwo chip taking off CPU load on the MKR Arm processor. No need for DMX or RS485 libraries.
   - Settings for TX DMX-512 timings (refresh period / time between channels / amount of channels)
   - IRQ settings and flag control for RF reception, new DMX values etc...
   - RX DMX window settings (Start adress and length of window)
