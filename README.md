@@ -3,6 +3,7 @@ CRMX TimoTwo Library for CRMX TimoTwo MKR Shield
 
 ![](images/MKR-CRMXTimoTwo.png)
 Library works on the CRMX TimoTwo shield
+- MKR board compatible
 - Based on RadioLumen CRMX TimoTwo transceiver with external antenna
 - 4 LED's on lightguide for status & RF receiving quality
 - 1 RGB LED on lightguide with Universe color
