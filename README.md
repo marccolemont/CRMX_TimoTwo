@@ -3,6 +3,7 @@ CRMX TimoTwo Library for CRMX TimoTwo MKR Shield
 
 ![](images/MKR-CRMXTimoTwo.png)
 Library works on the CRMX TimoTwo shield
+
 Hardware:
 - MKR shield board compatible using only SPI and Pin 5 Select / Pin 6 IRQ
 - Based on RadioLumen CRMX TimoTwo transceiver with external antenna
