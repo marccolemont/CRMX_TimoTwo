@@ -21,7 +21,7 @@ Hardware:
   - Pin 5: RS485_RE
   - Pin 6: 3V3
 - On board voltage convertors (VIN 5V) to 3V3 and 1V8 to avoid current load on MKR xxxx compatible boards.
-- Create Mesh network of devices (Lumenradio Firmware release in 2020) 
+- Create Mesh network of devices (firmware release scheduled in 2020) 
 - The TimoTwo module comprises a BLE based interface that allows for configuration of the device as well as transfer of DMX data to the device (for example Luminair iPad software https://apps.apple.com/us/app/luminair-3-digital-lighting/id920440588?ign-mpt=uo%3D4).
 
 Firmware:
