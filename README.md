@@ -31,7 +31,7 @@ Firmware:
   - No need for DMX or RS485 libraries. Can also be used without the RF capability to generate external DMX-512 RX/TX ANSI E1.11 DMX512-A and ANSI E1.20 RDM compliant signals.
   - Settings for TX DMX-512 timings (refresh period / time between channels / amount of channels)
   - IRQ settings and flag control for RF reception, new DMX values etc...
-  - RX DMX window settings (Start adress and length of window)
+  - RX DMX window settings (Start adress and length of window) for easy implementation to create DMX fixtures.
   - ASC frame start code and frame receiver
   - Masking of the 88 TX channels.
   - Hardware version / firmware version UID readout
