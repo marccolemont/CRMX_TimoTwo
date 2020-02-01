@@ -159,10 +159,13 @@ class CRMX_TimoTwo
       void writeDMX(byte channel, byte data);
       void transmitDMX(); // transmit DMX universe
       uint8_t readDMX(byte channel);
+      void getDMX();
 
       // functions
       void setCONFIG();
       uint8_t getCONFIG();
+    
+      void setSTATUS(byte statusData);
       uint8_t getSTATUS();
       
       void setDMX_CONTROL(byte CRMXdata);
@@ -181,14 +184,12 @@ class CRMX_TimoTwo
   
   private:
  
-      //int _IRQPin = 6;
-      //int _SSPin  = 7;
-      //byte _dataBuffer[11];
+      
       bool _CRMXbusy = false;
-      //byte _DMX[512];
       void writeRegister(byte command, byte amount);
       void readRegister(byte command, byte amount);
       void _transmitDMX128ch(int channel_start, int channel_end);
+      void _receiveDMX128ch(int channel_start, int channel_end);
       
 };
 

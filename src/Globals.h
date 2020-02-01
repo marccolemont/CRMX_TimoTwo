@@ -25,6 +25,6 @@
  extern int _SSPin;
 
  extern byte _dataBuffer[11];
- extern byte _DMX[512];
+ extern byte _DMX[513];
  
 #endif

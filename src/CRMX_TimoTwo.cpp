@@ -59,6 +59,14 @@ void CRMX_TimoTwo::setCONFIG(){
  
 }
 
+
+void CRMX_TimoTwo::setSTATUS(byte statusData){
+
+  writeRegister(STATUS, statusData); // tranmit to CRMX module
+ 
+}
+
+
 void CRMX_TimoTwo::setDMX_CONTROL(byte CRMXdata){
 
   _dataBuffer[0] = CRMXdata;
@@ -376,10 +384,46 @@ void CRMX_TimoTwo::transmitDMX(){  // Tranmit DMX universe
 }
 
 
+
+
+void CRMX_TimoTwo::getDMX(){  // Tranmit DMX universe
+
+    
+    int channel_start;
+    int channel_end;
+
+    if (RADIO_TX_RX_MODE == false){ // if radio is set as receiver
+    
+          for (int i=0;i<4;i++){ // write 8 blocks of 64 channels
+      
+                channel_start = (i * 128) + 1;
+                channel_end   = channel_start + 128;
+                
+              if (channel_start < WINDOW_SIZE){ // read another window of 128 channels if needed
+                    _receiveDMX128ch(channel_start, channel_end); // Transmit block of 64 DMX channels
+                    
+                      // check if TimoTwo was not busy receiving the update
+                      if (_CRMXbusy == true){
+                        
+                           _receiveDMX128ch(channel_start, channel_end); // Transmit block of 64 DMX channels
+                      }
+              }
+            
+          }
+    }
+    
+  
+}
+
+
+
+
+
+
 void CRMX_TimoTwo::_transmitDMX128ch(int channel_start, int channel_end)
 {
 
-  // tranmit block of 64 DMX channels
+  // tranmit block of 128 DMX channels
   int  _counter  = 0;
 
 
@@ -428,6 +472,74 @@ void CRMX_TimoTwo::_transmitDMX128ch(int channel_start, int channel_end)
               // Data bytes to receive and store in the dataBuffer
                for (int i=channel_start;i<channel_end;i++){
                  SPI.transfer(_DMX[i]); // Send command byte and read this first byte IRQ_flags
+               }
+              
+
+      
+          digitalWrite(_SSPin, HIGH);
+          
+          delayMicroseconds(550);  // default delay
+
+
+       SPI.endTransaction();
+
+
+
+  
+}
+
+void CRMX_TimoTwo::_receiveDMX128ch(int channel_start, int channel_end)
+{
+
+  // receive block of 128 DMX channels
+  int  _counter  = 0;
+
+
+      SPI.beginTransaction(TimoTwo_Settings);
+
+
+          _CRMXbusy = false;
+          // command byte
+          digitalWrite(_SSPin, LOW);
+          
+           delayMicroseconds(5);  // extra delay befor start
+ 
+                  IRQ_flagData = SPI.transfer(READ_DMX); // Send command byte and read this first byte IRQ_flags
+      
+          digitalWrite(_SSPin, HIGH);
+          
+
+          
+          // Check if CRMX is busy
+          if (bitRead (IRQ_flagData, 7) == HIGH){
+            _CRMXbusy = true;
+            delayMicroseconds(550);  // default delay
+            return;
+          }
+
+          
+          delayMicroseconds(100);  // default delay
+          
+
+                while ((::digitalRead(_IRQPin)) == HIGH && _counter <= 5){
+                  delayMicroseconds(300);
+                  _counter++;
+                  
+                  
+                } // add more delay if interrupt is still high
+              
+          // Receive data
+         digitalWrite(_SSPin, LOW);
+          
+          delayMicroseconds(5);  // extra delay befor start
+
+              // start Byte
+              IRQ_flagData = SPI.transfer(NOP);
+              delayMicroseconds(5);  // extra delay befor start
+
+              // Data bytes to receive and store in the dataBuffer
+               for (int i=channel_start;i<channel_end;i++){
+                _DMX[i] = SPI.transfer(NOP); // Receive DMX byte
                }
               
 
