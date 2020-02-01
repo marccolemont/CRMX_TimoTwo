@@ -10,8 +10,9 @@ Create Wireless DMX transmitter & receiver projects with this MKR-shield.
 ![](images/MKR-CRMXTimoTwo.png)
 
 Hardware:
-- MKR shield board compatible using only SPI and Pin 5 Select / Pin 6 IRQ.
-- Based on RadioLumen CRMX TimoTwo transceiver with external antenna.
+- Arduino MKR shield board compatible using only SPI and Pin 5 Select / Pin 6 IRQ.
+- Tested with MKR Zero, MKR 1010, MKR Vidor 4000, ... 
+- Based on RadioLumen CRMX TimoTwo transceiver with external antenna and SPI communication.
 - ANSI E1.11 - DMX512-A and ANSI E1.20 - RDM.
 - Auto selection of the 88 channels possible 2402-2480 MHz (no WiFi connection) Dynamically avoids occupied frequencies.
 - 4 LED's on lightguide for status & RF receiving quality.
