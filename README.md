@@ -1,4 +1,4 @@
-# CRMX_TimoTwo Library
+# LumenRadio CRMX_TimoTwo Library for MKR shield
 CRMX TimoTwo Library for CRMX TimoTwo MKR Shield (release Q2 2020)
 
 Create Wireless DMX TX/RX with this MKR-shield E1.11 DMX512-A and ANSI E1.20 RDM compliant!
