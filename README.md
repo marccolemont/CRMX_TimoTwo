@@ -1,4 +1,4 @@
-# Arduino LumenRadio CRMX_TimoTwo Library
+# Arduino WIRELESS DMX LumenRadio CRMX_TimoTwo Library
 CRMX TimoTwo Library for CRMX TimoTwo MKR Shield (release Q2 2020)
 
 Create Wireless DMX transmitter & receiver projects with this MKR-shield. 
