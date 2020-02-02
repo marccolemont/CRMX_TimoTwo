@@ -273,7 +273,7 @@ void CRMX_TimoTwo::readRegister(byte command, byte length){
 
        SPI.endTransaction();
 
-  Interrupts();
+  interrupts();
   
 }
 
@@ -340,7 +340,7 @@ void CRMX_TimoTwo::writeRegister(byte command, byte length){
 
        SPI.endTransaction();
 
-Interrupts();
+interrupts();
   
 }
 
@@ -384,7 +384,7 @@ void CRMX_TimoTwo::transmitDMX(){  // Tranmit DMX universe
           }
     }
     
-    Interrupts();
+    interrupts();
   
 }
 
@@ -417,7 +417,7 @@ void CRMX_TimoTwo::getDMX(){  // Tranmit DMX universe
           }
     }
     
-  Interrupts();
+  interrupts();
 }
 
 
