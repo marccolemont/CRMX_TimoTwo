@@ -236,6 +236,7 @@ uint8_t CRMX_TimoTwo::getIRQ(){
                 return (0xFF);
           } else {
                 return (IRQ_flagData);
+          }
 
           
           delayMicroseconds(100);  // default delay
