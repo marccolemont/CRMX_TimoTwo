@@ -211,7 +211,9 @@ uint8_t CRMX_TimoTwo::getIRQ_FLAGS(){
 
 void CRMX_TimoTwo::readRegister(byte command, byte length){
 
-   int _counter = 0;
+   noInterrupts();
+    
+    int _counter = 0;
 
       SPI.beginTransaction(TimoTwo_Settings);
 
@@ -271,14 +273,16 @@ void CRMX_TimoTwo::readRegister(byte command, byte length){
 
        SPI.endTransaction();
 
-
+  Interrupts();
   
 }
 
 
 void CRMX_TimoTwo::writeRegister(byte command, byte length){
 
-   int _counter = 0;
+   noInterrupts();
+    
+    int _counter = 0;
 
       SPI.beginTransaction(TimoTwo_Settings);
 
@@ -336,7 +340,7 @@ void CRMX_TimoTwo::writeRegister(byte command, byte length){
 
        SPI.endTransaction();
 
-
+Interrupts();
   
 }
 
@@ -358,7 +362,7 @@ uint8_t CRMX_TimoTwo::readDMX(byte index)
 
 void CRMX_TimoTwo::transmitDMX(){  // Tranmit DMX universe
 
-    
+    noInterrupts();
     int channel_start;
     int channel_end;
 
@@ -380,6 +384,7 @@ void CRMX_TimoTwo::transmitDMX(){  // Tranmit DMX universe
           }
     }
     
+    Interrupts();
   
 }
 
@@ -388,7 +393,7 @@ void CRMX_TimoTwo::transmitDMX(){  // Tranmit DMX universe
 
 void CRMX_TimoTwo::getDMX(){  // Tranmit DMX universe
 
-    
+    noInterrupts();
     int channel_start;
     int channel_end;
 
@@ -412,7 +417,7 @@ void CRMX_TimoTwo::getDMX(){  // Tranmit DMX universe
           }
     }
     
-  
+  Interrupts();
 }
 
 
@@ -422,7 +427,7 @@ void CRMX_TimoTwo::getDMX(){  // Tranmit DMX universe
 
 void CRMX_TimoTwo::_transmitDMX128ch(int channel_start, int channel_end)
 {
-
+  
   // tranmit block of 128 DMX channels
   int  _counter  = 0;
 
@@ -490,7 +495,7 @@ void CRMX_TimoTwo::_transmitDMX128ch(int channel_start, int channel_end)
 
 void CRMX_TimoTwo::_receiveDMX128ch(int channel_start, int channel_end)
 {
-
+  
   // receive block of 128 DMX channels
   int  _counter  = 0;
 
