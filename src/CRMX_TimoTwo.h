@@ -181,6 +181,8 @@ class CRMX_TimoTwo
     
       uint8_t getVersionNumber(int8_t versionData);
       uint8_t getLINK_QUALITY();
+    
+      uint8_t getIRQ(int8_t IRQdata);
   
   private:
  
