@@ -209,6 +209,46 @@ uint8_t CRMX_TimoTwo::getIRQ_FLAGS(){
   
 }
 
+
+uint8_t CRMX_TimoTwo::getIRQ(){
+
+   noInterrupts();
+    
+    int _counter = 0;
+
+      SPI.beginTransaction(TimoTwo_Settings);
+
+
+          _CRMXbusy = false;
+          // command byte
+          digitalWrite(_SSPin, LOW);
+          
+           delayMicroseconds(5);  // extra delay befor start
+ 
+                  IRQ_flagData = SPI.transfer(NOP); // Send command byte and read this first byte IRQ_flags
+      
+          digitalWrite(_SSPin, HIGH);
+         
+
+          
+          // Check if CRMX is busy
+          if (bitRead (IRQ_flagData, 7) == HIGH){
+            _CRMXbusy = true;
+            delayMicroseconds(550);  // default delay
+                return -9999;
+          } else {
+                return IRQ_flagData;
+
+          
+          delayMicroseconds(100);  // default delay
+          
+       SPI.endTransaction();
+
+  interrupts();
+  
+}
+
+
 void CRMX_TimoTwo::readRegister(byte command, byte length){
 
    noInterrupts();
