@@ -213,8 +213,6 @@ uint8_t CRMX_TimoTwo::getIRQ_FLAGS(){
 uint8_t CRMX_TimoTwo::getIRQ(){
 
    noInterrupts();
-    
-    int _counter = 0;
 
       SPI.beginTransaction(TimoTwo_Settings);
 
@@ -235,9 +233,9 @@ uint8_t CRMX_TimoTwo::getIRQ(){
           if (bitRead (IRQ_flagData, 7) == HIGH){
             _CRMXbusy = true;
             delayMicroseconds(550);  // default delay
-                return -9999;
+                return (0xFF);
           } else {
-                return IRQ_flagData;
+                return (IRQ_flagData);
 
           
           delayMicroseconds(100);  // default delay
