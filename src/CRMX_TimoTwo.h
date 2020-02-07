@@ -162,10 +162,10 @@ class CRMX_TimoTwo
       void getDMX();
 
       // functions
-      void setCONFIG();
+      void setCONFIG(bool a, bool b, bool c);
       uint8_t getCONFIG();
     
-      void setSTATUS(byte statusData);
+      void setSTATUS(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h);
       uint8_t getSTATUS();
       
       void setDMX_CONTROL(byte CRMXdata);
@@ -174,7 +174,7 @@ class CRMX_TimoTwo
       void setRF_POWER(byte CRMXdata);
       uint8_t getRF_POWER();
     
-      void setIRQ_MASK();
+      void setIRQ_MASK(bool a, bool b, bool c, bool d, bool e, bool f);
       uint8_t getIRQ_MASK();
     
       uint8_t getIRQ_FLAGS();

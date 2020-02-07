@@ -46,23 +46,32 @@ void CRMX_TimoTwo::begin()
 }
 
 
-void CRMX_TimoTwo::setCONFIG(){
+void CRMX_TimoTwo::setCONFIG(bool a, bool b, bool c){
 
   
   _dataBuffer[0] = 0b00000000;
 
-  bitWrite(_dataBuffer[0], 0, UART_EN);
-  bitWrite(_dataBuffer[0], 1, RADIO_TX_RX_MODE);
-  bitWrite(_dataBuffer[0], 7, RADIO_ENABLE);
+  bitWrite(_dataBuffer[0], 0, a); // UART_ENbit
+  bitWrite(_dataBuffer[0], 1, b); // RADIO_TX_RX_MODEbit
+  bitWrite(_dataBuffer[0], 7, c); // RADIO_ENABLEbit
 
   writeRegister(CONFIG, 1); // tranmit to CRMX module
  
 }
 
 
-void CRMX_TimoTwo::setSTATUS(byte statusData){
-
-  writeRegister(STATUS, statusData); // tranmit to CRMX module
+void CRMX_TimoTwo::setSTATUS(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h){
+    
+    bitWrite(_dataBuffer[0], 0, a);
+    bitWrite(_dataBuffer[0], 1, b);
+    bitWrite(_dataBuffer[0], 2, c);
+    bitWrite(_dataBuffer[0], 3, d);
+    bitWrite(_dataBuffer[0], 4, e);
+    bitWrite(_dataBuffer[0], 5, f);
+    bitWrite(_dataBuffer[0], 6, g);
+    bitWrite(_dataBuffer[0], 7, h);
+        
+  writeRegister(STATUS, 1); // tranmit to CRMX module
  
 }
 
@@ -84,19 +93,19 @@ void CRMX_TimoTwo::setRF_POWER(byte CRMXdata){
 }
 
 
-void CRMX_TimoTwo::setIRQ_MASK()
+void CRMX_TimoTwo::setIRQ_MASK(bool a, bool b, bool c, bool d, bool e, bool f)
 {
 
      _dataBuffer[0] = 0b00000000;
-
-    bitWrite(_dataBuffer[0], 0, RX_DMX_IRQ_ENbit);
-    bitWrite(_dataBuffer[0], 1, LOST_DMX_IRQ_ENbit);
-    bitWrite(_dataBuffer[0], 2, DMX_CHANGED_IRQ_ENbit);
-    bitWrite(_dataBuffer[0], 3, RF_LINK_IRQ_ENbit);
-    bitWrite(_dataBuffer[0], 4, ASC_IRQ_ENbit);
-    bitWrite(_dataBuffer[0], 5, IDENTIFY_IRQ_ENbit);
-    //bitWrite(_dataBuffer[0], 6, LOST_DMX_IRQ_EN);
-    //bitWrite(_dataBuffer[0], 7, LOST_DMX_IRQ_EN);
+    bitWrite(_dataBuffer[0], 0, a); // RX_DMX_IRQ_ENbit
+    bitWrite(_dataBuffer[0], 1, b); // LOST_DMX_IRQ_ENbit
+    bitWrite(_dataBuffer[0], 2, c); // DMX_CHANGED_IRQ_ENbit
+    bitWrite(_dataBuffer[0], 3, d); // RF_LINK_IRQ_ENbit
+    bitWrite(_dataBuffer[0], 4, e); // ASC_IRQ_ENbit
+    bitWrite(_dataBuffer[0], 5, f); // IDENTIFY_IRQ_ENbit
+    //bitWrite(_dataBuffer[0], 6,  LOST_DMX_IRQ_EN);
+    //bitWrite(_dataBuffer[0], 7, LOST_DMX_IRQ_EN)
+    
   
     writeRegister(IRQ_MASK, 1); // tranmit to CRMX module, one byta of data
 
@@ -179,7 +188,7 @@ uint8_t CRMX_TimoTwo::getVersionNumber(int8_t versionData){
 uint8_t CRMX_TimoTwo::getLINK_QUALITY(){
 
       readRegister(LINK_QUALITY, 1); // get data from CRMX module
-
+      return (_dataBuffer[0]);
   
 }
 
@@ -188,7 +197,11 @@ uint8_t CRMX_TimoTwo::getLINK_QUALITY(){
 uint8_t CRMX_TimoTwo::getRF_POWER(){
 
       readRegister(RF_POWER, 1); // get data from CRMX module
-
+    
+            if (_CRMXbusy == true){
+                 readRegister(RF_POWER, 1); // try again
+            }
+      return (_dataBuffer[0]);
 
   
 }
@@ -197,6 +210,10 @@ uint8_t CRMX_TimoTwo::getIRQ_MASK(){
 
       
       readRegister(IRQ_MASK, 1); // get data from CRMX module
+            if (_CRMXbusy == true){
+                 readRegister(IRQ_MASK, 1); // try again
+            }
+      return (_dataBuffer[0]);
 
   
 }
@@ -205,6 +222,9 @@ uint8_t CRMX_TimoTwo::getIRQ_FLAGS(){
 
       
       readRegister(IRQ_FLAGS, 1); // get data from CRMX module
+            if (_CRMXbusy == true){
+                 readRegister(IRQ_FLAGS, 1); // try again
+            }
       return (_dataBuffer[0]);
   
 }
@@ -223,7 +243,7 @@ uint8_t CRMX_TimoTwo::getIRQ(){
           
            delayMicroseconds(5);  // extra delay befor start
  
-                  IRQ_flagData = SPI.transfer(NOP); // Send command byte and read this first byte IRQ_flags
+                  _dataBuffer[0] = SPI.transfer(NOP); // Send command byte and read this first byte IRQ_flags
       
           digitalWrite(_SSPin, HIGH);
          
@@ -235,7 +255,7 @@ uint8_t CRMX_TimoTwo::getIRQ(){
             delayMicroseconds(550);  // default delay
                 return (0xFF);
           } else {
-                return (IRQ_flagData);
+                return (_dataBuffer[0]);
           }
 
           
@@ -386,7 +406,7 @@ interrupts();
 
 uint8_t CRMX_TimoTwo::readDMX(byte index)
 {
-   if(index >= 0 && index < WINDOW_SIZE)
+   if(index >= 0 && index <= WINDOW_SIZE)
    {
       //return DMX[index];
       return (_DMX[index]);
@@ -410,7 +430,7 @@ void CRMX_TimoTwo::transmitDMX(){  // Tranmit DMX universe
           for (int i=0;i<4;i++){ // write 8 blocks of 64 channels
       
                 channel_start = (i * 128) + 1;
-                channel_end   = channel_start + 128;
+                channel_end   = channel_start + 127;
                 
                     _transmitDMX128ch(channel_start, channel_end); // Transmit block of 64 DMX channels
                     
@@ -432,31 +452,42 @@ void CRMX_TimoTwo::transmitDMX(){  // Tranmit DMX universe
 
 void CRMX_TimoTwo::getDMX(){  // Tranmit DMX universe
 
-    noInterrupts();
+    //noInterrupts();
     int channel_start;
     int channel_end;
 
-    if (RADIO_TX_RX_MODE == false){ // if radio is set as receiver
+    //if (RADIO_TX_RX_MODE == false){ // if radio is set as receiver
     
           for (int i=0;i<4;i++){ // write 8 blocks of 64 channels
       
                 channel_start = (i * 128) + 1;
-                channel_end   = channel_start + 128;
+                channel_end   = channel_start + 127;
+              
                 
-              if (channel_start < WINDOW_SIZE){ // read another window of 128 channels if needed
-                    _receiveDMX128ch(channel_start, channel_end); // Transmit block of 64 DMX channels
+              if (channel_start <= WINDOW_SIZE){ // read another window of 128 channels if needed
+                  
+                  if (DEBUG >=1){
+                      Serial.print("Read Channels: ");
+                      Serial.print(channel_start);
+                      Serial.print(" : ");
+                      Serial.println(channel_end);
+                      Serial.print("Window Size ");
+                      Serial.print(WINDOW_SIZE);
+                  }
+                    _receiveDMX128ch(channel_start, channel_end); // Transmit block of 128 DMX channels
                     
                       // check if TimoTwo was not busy receiving the update
                       if (_CRMXbusy == true){
                         
-                           _receiveDMX128ch(channel_start, channel_end); // Transmit block of 64 DMX channels
+                           _receiveDMX128ch(channel_start, channel_end); // Transmit block of 128 DMX channels
+                          _CRMXbusy = false;
                       }
               }
             
           }
-    }
+    //}
     
-  interrupts();
+  //interrupts();
 }
 
 
@@ -537,6 +568,8 @@ void CRMX_TimoTwo::_receiveDMX128ch(int channel_start, int channel_end)
   
   // receive block of 128 DMX channels
   int  _counter  = 0;
+  int DMXchannel;
+  byte value;
 
 
       SPI.beginTransaction(TimoTwo_Settings);
@@ -583,9 +616,34 @@ void CRMX_TimoTwo::_receiveDMX128ch(int channel_start, int channel_end)
 
               // Data bytes to receive and store in the dataBuffer
                for (int i=channel_start;i<channel_end;i++){
-                _DMX[i] = SPI.transfer(NOP); // Receive DMX byte
-               }
-              
+                value = SPI.transfer(NOP); // Receive DMX byte
+                   _DMX[i] = value;
+                    DMXchannel = 9;
+                       if (DEBUG >=1 && i == DMXchannel){
+                           Serial.print("DMX channel: ");
+                           Serial.print(DMXchannel);
+                           Serial.print(" : ");
+                           Serial.println(value);
+                       }
+                    DMXchannel = 10;
+                   if (DEBUG >=1 && i == DMXchannel){
+                       Serial.print("DMX channel: ");
+                       Serial.print(DMXchannel);
+                       Serial.print(" : ");
+                       Serial.println(value);
+                   }
+                    DMXchannel = 11;
+                   if (DEBUG >=1 && i == DMXchannel){
+                       Serial.print("DMX channel: ");
+                       Serial.print(DMXchannel);
+                       Serial.print(" : ");
+                       Serial.println(value);
+                   }
+                  
+                delayMicroseconds(5);  // extra delay befor start
+                        
+                }
+                                          
 
       
           digitalWrite(_SSPin, HIGH);
