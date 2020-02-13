@@ -101,11 +101,6 @@ void CRMX_TimoTwo::setCONFIG(bool a, bool b, bool c){
 }
 
 
-                  
-                  
-
-
-
 bool CRMX_TimoTwo::IRQ_detected(){
     
     noInterrupts();
@@ -159,18 +154,7 @@ void CRMX_TimoTwo::setDMX_CONTROL(byte CRMXdata){
 }
 
 
-void CRMX_TimoTwo::setDMX_SPEC(unsigned long REFRESH, unsigned int INTERSLOT, unsigned int AmountCHANNELS){
-    
-//    _dataBuffer[0] = highByte(AmountCHANNELS);
-//    _dataBuffer[1] = lowByte (AmountCHANNELS);
-//
-//    _dataBuffer[2] = highByte (INTERSLOT);
-//    _dataBuffer[3] = lowByte (INTERSLOT) ;
-//
-//    _dataBuffer[4] = lowByte (REFRESH >> 24);
-//    _dataBuffer[5] = lowByte (REFRESH >> 16);
-//    _dataBuffer[6] = lowByte (REFRESH >> 8);
-//    _dataBuffer[7] = lowByte (REFRESH);
+void CRMX_TimoTwo::setDMX_SPEC(uint32_t REFRESH, uint16_t INTERSLOT, uint16_t AmountCHANNELS){
     
     _dataBuffer[0] = AmountCHANNELS >> 8;
     _dataBuffer[1] = AmountCHANNELS;
@@ -190,20 +174,20 @@ void CRMX_TimoTwo::setDMX_SPEC(unsigned long REFRESH, unsigned int INTERSLOT, un
         
         int i;
         SerialUSB.print("REFRESH: ");
-        for (i=0;i<4;i++){
+        for (i=4;i<8;i++){
             SerialUSB.print(_dataBuffer[i], BIN);
             
         }
         SerialUSB.println("");
         
         SerialUSB.print("  Interslot: ");
-        for (i=4;i<6;i++){
+        for (i=2;i<4;i++){
             SerialUSB.print(_dataBuffer[i], BIN);
             
         }
         SerialUSB.println("");
         SerialUSB.print("  AmountOfChannels: ");
-        for (i=6;i<8;i++){
+        for (i=0;i<2;i++){
             SerialUSB.print(_dataBuffer[i], BIN);
             
         }
@@ -689,7 +673,9 @@ void CRMX_TimoTwo::getDMX(){  // Tranmit DMX universe
 
 uint8_t CRMX_TimoTwo::readRegister(byte command, byte length){
 
-  // noInterrupts();
+    
+    currentMillisTime  = millis();
+    previousMillisCRMX = currentMillisTime;
     
 
       SPI.beginTransaction(TimoTwo_Settings);
@@ -736,29 +722,36 @@ uint8_t CRMX_TimoTwo::readRegister(byte command, byte length){
               }
             return -1 ;
           }
+    
+            
 
           // check interrupt to go low within a certain time
           delayMicroseconds(100);  // default delay
     
     //delayMicroseconds(800);  // default delay
     
-          currentMillisTime  = millis();
-          previousMillisCRMX = currentMillisTime;
+          
 
-                while ((digitalRead(_IRQPin)) == HIGH &&
-                       (currentMillisTime - previousMillisCRMX <= intervalCRMX)){
-                    currentMillisTime  = millis();
-                        
-                } // add more delay if interrupt is still high
+//                while ((digitalRead(_IRQPin)) == HIGH &&
+//                       (currentMillisTime - previousMillisCRMX <= intervalCRMX)){
+//                    currentMillisTime  = millis();
     
-                        // Check if Timeout occured
-                        if (currentMillisTime - previousMillisCRMX >= intervalCRMX){
-                          _CRMXbusy = true;
-                            if (DEBUG >=1){
-                                SerialUSB.println("ERROR Timeout ");
-                            }
-                          return -1 ;
-                        }
+                 while(!IRQ_detected()) {
+                     
+                     // Check if Timeout occured
+                     if (currentMillisTime - previousMillisCRMX >= intervalCRMX){
+                       _CRMXbusy = true;
+                         if (DEBUG >=1){
+                             SerialUSB.println("ERROR Timeout ");
+                         }
+                       return -1 ;
+                     }
+                     
+                 }
+                        
+                
+    
+                        
      
     // if the command is other then NOP
     if (command != NOP){
@@ -824,16 +817,15 @@ uint8_t CRMX_TimoTwo::readRegister(byte command, byte length){
        SPI.endTransaction();
        return 0; // all OK
 
-//interrupts();
+
   
 }
 
 
 uint8_t CRMX_TimoTwo::writeRegister(byte command, byte length){
-
-   //noInterrupts();
     
-    
+    currentMillisTime  = millis();
+    previousMillisCRMX = currentMillisTime;
     int _counter = 0;
 
       SPI.beginTransaction(TimoTwo_Settings);
@@ -884,27 +876,20 @@ uint8_t CRMX_TimoTwo::writeRegister(byte command, byte length){
           }
 
           // check interrupt to go low within a certain time
-          delayMicroseconds(100);  // default delay
+          //delayMicroseconds(100);  // default delay
     
-        //delayMicroseconds(800);  // default delay
-    
-          currentMillisTime  = millis();
-          previousMillisCRMX = currentMillisTime;
-
-                while ((digitalRead(_IRQPin)) == HIGH &&
-                       (currentMillisTime - previousMillisCRMX <= intervalCRMX)){
-                    currentMillisTime  = millis();
-                        
-                } // add more delay if interrupt is still high
-    
-                        // Check if Timeout occured
-                        if (currentMillisTime - previousMillisCRMX >= intervalCRMX){
-                          _CRMXbusy = true;
-                            if (DEBUG >=1){
-                                SerialUSB.println("ERROR Timeout ");
-                            }
-                          return (_CRMXbusy) ;
-                        }
+                                while(!IRQ_detected()) {
+                                    
+                                    // Check if Timeout occured
+                                    if (currentMillisTime - previousMillisCRMX >= intervalCRMX){
+                                      _CRMXbusy = true;
+                                        if (DEBUG >=1){
+                                            SerialUSB.println("ERROR Timeout ");
+                                        }
+                                      return -1 ;
+                                    }
+                                    
+                                }
      
          
             

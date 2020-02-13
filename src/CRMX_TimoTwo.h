@@ -205,7 +205,7 @@ class CRMX_TimoTwo
       uint8_t getIRQ();
       
       void setBATTERY_LEVEL(byte level);
-      void setDMX_SPEC(unsigned long REFRESH, unsigned int INTERSLOT, unsigned int AmountCHANNELS);
+      void setDMX_SPEC(uint32_t REFRESH, uint16_t INTERSLOT, uint16_t AmountCHANNELS);
       
       uint8_t getDMX_SPEC(int8_t dmxData);
       
