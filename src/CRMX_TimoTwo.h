@@ -31,7 +31,7 @@
 #include <SPI.h>
 #include "Globals.h"
 
-#define TimoTwo_Settings (SPISettings(1000000, MSBFIRST, SPI_MODE0))
+#define TimoTwo_Settings (SPISettings(500000, MSBFIRST, SPI_MODE0))
 
 // SPI commands
 #define READ_DMX  0x81
@@ -129,24 +129,43 @@
 #define BATTERY_LEVEL 0x32            // int8 Battery level, in percent, reported by the BLE Battery Service
                                       // 0 = 0%, 100 = 100%, 255=No battery available, 101-254 reserved. (255)
 
+#define TIMO_UNIVERSE_COLOR_REG 0x33    // 3 bytes
 
+#define TIMO_OEM_INFO_REG 0x34          // 6 bytes
+
+
+//void IRQ_handler();
 
 
 class CRMX_TimoTwo
 {
 
+    // IRQ_stuff
+    static void isr0 ();
+    static CRMX_TimoTwo * instance0_;
+    //static void IRQ_handler();
+    volatile bool IRQ_pending;
+    
   public:
 
       CRMX_TimoTwo();
+    
+      void IRQ_handler();
 
-      void begin();
+      void begin(uint8_t interruptPin, uint8_t SPIpin);
       //void end();
       
+      bool IRQ_detected();  //Check is interrupt is available
+    
       // variables
+      int16_t N_CHANNELS = 512;  // AmountOfDMX channels TX
       int CRMX_detected;
       byte IRQ_maskData;
       byte IRQ_flagData;
       bool UART_EN = 1;
+      uint8_t _IRQPin;
+      uint8_t _SSPin;
+      
       //bool RADIO_ENABLE = 1;
      // bool LOST_DMX_IRQ_EN = true; // bit 1 IRQ_MASK
      // bool DMX_CHANGED_IRQ_EN = true; //bit 2 IRQ_MASK
@@ -156,9 +175,9 @@ class CRMX_TimoTwo
       //int16_t WINDOW_SIZE = 64; // CCU CAMERA DATA SIZE 
 
       // Wireless data
-      void writeDMX(byte channel, byte data);
+      void writeDMX(int16_t index, byte value);
       void transmitDMX(); // transmit DMX universe
-      uint8_t readDMX(byte channel);
+      uint8_t readDMXch(byte channel);
       void getDMX();
 
       // functions
@@ -170,6 +189,7 @@ class CRMX_TimoTwo
       
       void setDMX_CONTROL(byte CRMXdata);
       void setDMX_WINDOW(int16_t address, int16_t windowsize);
+      uint8_t getDMX_WINDOW(byte data);
       
       void setRF_POWER(byte CRMXdata);
       uint8_t getRF_POWER();
@@ -183,17 +203,41 @@ class CRMX_TimoTwo
       uint8_t getLINK_QUALITY();
     
       uint8_t getIRQ();
+      
+      void setBATTERY_LEVEL(byte level);
+      void setDMX_SPEC(unsigned long REFRESH, unsigned int INTERSLOT, unsigned int AmountCHANNELS);
+      
+      uint8_t getDMX_SPEC(int8_t dmxData);
+      
+        
   
   private:
  
       
-      bool _CRMXbusy = false;
-      void writeRegister(byte command, byte amount);
-      void readRegister(byte command, byte amount);
-      void _transmitDMX128ch(int channel_start, int channel_end);
-      void _receiveDMX128ch(int channel_start, int channel_end);
+        
+        bool _CRMXbusy = false;
+        uint8_t  writeRegister(byte command, byte amount);
+        uint8_t  readRegister(byte command, byte amount);
+    
+        unsigned long currentMillisTime; // timer
+        unsigned long previousMillisCRMX = 0;
+        const long intervalCRMX   = 3;
+        int channel_start;
+        int channel_end;
+        // DMX parameters
+        int16_t START_ADDRESS_WINDOW;    // Depends on CAM selection
+        int16_t WINDOW_SIZE; // CCU CAMERA DATA SIZE
+    
+        // Internal parameters
+        
+        byte _DMX[513];
+    
+        //void IRQ_handler();
+        //bool IRQ_pending;
+        //bool *pending;
       
 };
+
 
 
 #endif
