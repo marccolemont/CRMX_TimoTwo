@@ -134,7 +134,7 @@
 #define TIMO_OEM_INFO_REG 0x34          // 6 bytes
 
 
-//void IRQ_handler();
+
 
 
 class CRMX_TimoTwo
@@ -143,7 +143,6 @@ class CRMX_TimoTwo
     // IRQ_stuff
     static void isr0 ();
     static CRMX_TimoTwo * instance0_;
-    //static void IRQ_handler();
     volatile bool IRQ_pending;
     
   public:
@@ -153,7 +152,6 @@ class CRMX_TimoTwo
       void IRQ_handler();
 
       void begin(uint8_t interruptPin, uint8_t SPIpin);
-      //void end();
       
       bool IRQ_detected();  //Check is interrupt is available
     
@@ -165,15 +163,7 @@ class CRMX_TimoTwo
       bool UART_EN = 1;
       uint8_t _IRQPin;
       uint8_t _SSPin;
-      
-      //bool RADIO_ENABLE = 1;
-     // bool LOST_DMX_IRQ_EN = true; // bit 1 IRQ_MASK
-     // bool DMX_CHANGED_IRQ_EN = true; //bit 2 IRQ_MASK
-      //bool RADIO_TX_RX_MODE; // 0 = receiver, 1 = transmitter 
-
-      //int16_t START_ADDRESS;    // Depends on CAM selection
-      //int16_t WINDOW_SIZE = 64; // CCU CAMERA DATA SIZE 
-
+    
       // Wireless data
       void writeDMX(int16_t index, byte value);
       void transmitDMX(); // transmit DMX universe
@@ -212,9 +202,7 @@ class CRMX_TimoTwo
         
   
   private:
- 
-      
-        
+
         bool _CRMXbusy = false;
         uint8_t  writeRegister(byte command, byte amount);
         uint8_t  readRegister(byte command, byte amount);
@@ -232,9 +220,7 @@ class CRMX_TimoTwo
         
         byte _DMX[513];
     
-        //void IRQ_handler();
-        //bool IRQ_pending;
-        //bool *pending;
+        
       
 };
 
