@@ -26,10 +26,6 @@
 
  #include "CRMX_TimoTwo.h"
 
- //#include <Arduino.h>
- //#include <SPI.h>
- 
-
 CRMX_TimoTwo::CRMX_TimoTwo() {}
 
 CRMX_TimoTwo * CRMX_TimoTwo::instance0_ = NULL;
@@ -305,14 +301,7 @@ uint8_t CRMX_TimoTwo::getCONFIG(){
 
   return (_dataBuffer[0]);
   
-          // Read received variables
-        /*  
-           UART_EN          = bitRead(dataBuffer[0], 0);
-           RADIO_TX_RX_MODE = bitRead(dataBuffer[0], 1);
-           RADIO_ENABLE     = bitRead(dataBuffer[0], 7);
-          
-        */
-   
+         
 }
 
 
@@ -330,14 +319,7 @@ uint8_t CRMX_TimoTwo::getSTATUS(){
 
   return (_dataBuffer[0]);
   
-          // Read received variables
-        /*  
-           UART_EN          = bitRead(dataBuffer[0], 0);
-           RADIO_TX_RX_MODE = bitRead(dataBuffer[0], 1);
-           RADIO_ENABLE     = bitRead(dataBuffer[0], 7);
-          
-        */
-   
+         
 }
 
 
@@ -519,8 +501,6 @@ void CRMX_TimoTwo::transmitDMX()
     bool firsttime = true;
     
     if (DEBUG >=3){SerialUSB.println("Transmitting DMX");}
-
-    //if (RADIO_TX_RX_MODE == true){ // if radio is set as transmitter
     
     // try upto 3x if error occurs
     while (error < 0 && counter < 3){
@@ -727,15 +707,7 @@ uint8_t CRMX_TimoTwo::readRegister(byte command, byte length){
 
           // check interrupt to go low within a certain time
           delayMicroseconds(100);  // default delay
-    
-    //delayMicroseconds(800);  // default delay
-    
-          
-
-//                while ((digitalRead(_IRQPin)) == HIGH &&
-//                       (currentMillisTime - previousMillisCRMX <= intervalCRMX)){
-//                    currentMillisTime  = millis();
-    
+   
                  while(!IRQ_detected()) {
                      
                      // Check if Timeout occured
@@ -876,8 +848,7 @@ uint8_t CRMX_TimoTwo::writeRegister(byte command, byte length){
           }
 
           // check interrupt to go low within a certain time
-          //delayMicroseconds(100);  // default delay
-    
+          
                                 while(!IRQ_detected()) {
                                     
                                     // Check if Timeout occured
@@ -947,7 +918,6 @@ uint8_t CRMX_TimoTwo::writeRegister(byte command, byte length){
        SPI.endTransaction();
     return 0; // all OK
 
-//interrupts();
   
 }
 
