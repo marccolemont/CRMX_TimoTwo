@@ -1,4 +1,6 @@
 /*  CRMX library for Arduino
+ 
+    Version 0.1.32
     Copyright (C) 2020 MC-productions 
     Marc Colemont (marc.colemont@mc-productions.be)
 
@@ -31,7 +33,7 @@
 #include <SPI.h>
 #include "Globals.h"
 
-#define TimoTwo_Settings (SPISettings(500000, MSBFIRST, SPI_MODE0))
+#define TimoTwo_Settings (SPISettings(1000000, MSBFIRST, SPI_MODE0))
 
 // SPI commands
 #define READ_DMX  0x81
@@ -133,8 +135,10 @@
 
 #define TIMO_OEM_INFO_REG 0x34          // 6 bytes
 
+#define DMX_changed  (1 << 2)
 
 
+//void IRQ_handler();
 
 
 class CRMX_TimoTwo
@@ -143,6 +147,7 @@ class CRMX_TimoTwo
     // IRQ_stuff
     static void isr0 ();
     static CRMX_TimoTwo * instance0_;
+    //static void IRQ_handler();
     volatile bool IRQ_pending;
     
   public:
@@ -152,8 +157,10 @@ class CRMX_TimoTwo
       void IRQ_handler();
 
       void begin(uint8_t interruptPin, uint8_t SPIpin);
+      //void end();
       
       bool IRQ_detected();  //Check is interrupt is available
+      void enableIRQ(int c);
     
       // variables
       int16_t N_CHANNELS = 512;  // AmountOfDMX channels TX
@@ -163,46 +170,60 @@ class CRMX_TimoTwo
       bool UART_EN = 1;
       uint8_t _IRQPin;
       uint8_t _SSPin;
-    
+      
+      
+      //bool RADIO_ENABLE = 1;
+     // bool LOST_DMX_IRQ_EN = true; // bit 1 IRQ_MASK
+     // bool DMX_CHANGED_IRQ_EN = true; //bit 2 IRQ_MASK
+      //bool RADIO_TX_RX_MODE; // 0 = receiver, 1 = transmitter 
+
+      //int16_t START_ADDRESS;    // Depends on CAM selection
+      //int16_t WINDOW_SIZE = 64; // CCU CAMERA DATA SIZE 
+
       // Wireless data
-      void writeDMX(int16_t index, byte value);
-      void transmitDMX(); // transmit DMX universe
-      uint8_t readDMXch(byte channel);
-      void getDMX();
+        void writeDMX(int16_t index, byte value);
+        void transmitDMX(); // transmit DMX universe
+        uint8_t readDMXch(byte channel);
+        void getDMX();
 
       // functions
-      void setCONFIG(bool a, bool b, bool c);
-      uint8_t getCONFIG();
+        void setCONFIG(bool a, bool b, bool c);
+        uint8_t getCONFIG();
     
-      void setSTATUS(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h);
-      uint8_t getSTATUS();
+        void setSTATUS(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h);
+        uint8_t getSTATUS();
       
-      void setDMX_CONTROL(byte CRMXdata);
-      void setDMX_WINDOW(int16_t address, int16_t windowsize);
-      uint8_t getDMX_WINDOW(byte data);
+        void setDMX_CONTROL(byte CRMXdata);
+        void setDMX_WINDOW(int16_t address, int16_t windowsize);
+        uint8_t getDMX_WINDOW(byte data);
       
-      void setRF_POWER(byte CRMXdata);
-      uint8_t getRF_POWER();
+        void setRF_POWER(byte CRMXdata);
+        uint8_t getRF_POWER();
     
-      void setIRQ_MASK(bool a, bool b, bool c, bool d, bool e, bool f);
-      uint8_t getIRQ_MASK();
+        void setIRQ_MASK(bool a, bool b, bool c, bool d, bool e, bool f);
+        uint8_t getIRQ_MASK();
     
-      uint8_t getIRQ_FLAGS();
+        uint8_t getIRQ_FLAGS();
     
-      uint8_t getVersionNumber(int8_t versionData);
-      uint8_t getLINK_QUALITY();
+        uint8_t getVersionNumber(int8_t versionData);
+        uint8_t getLINK_QUALITY();
     
-      uint8_t getIRQ();
+        uint8_t getIRQ();
       
-      void setBATTERY_LEVEL(byte level);
-      void setDMX_SPEC(uint32_t REFRESH, uint16_t INTERSLOT, uint16_t AmountCHANNELS);
+        void setBATTERY_LEVEL(byte level);
+        void setDMX_SPEC(uint32_t REFRESH, uint16_t INTERSLOT, uint16_t AmountCHANNELS);
       
-      uint8_t getDMX_SPEC(int8_t dmxData);
+        uint8_t getDMX_SPEC(int8_t dmxData);
+    
+        uint8_t newEventIRQ();
+        uint8_t IRQen = 1;
       
         
   
   private:
-
+ 
+      
+        
         bool _CRMXbusy = false;
         uint8_t  writeRegister(byte command, byte amount);
         uint8_t  readRegister(byte command, byte amount);
@@ -219,8 +240,15 @@ class CRMX_TimoTwo
         // Internal parameters
         
         byte _DMX[513];
-    
-        
+        uint8_t IRQ_mode = 1; // when listning to new IRQ, not transmitting SPI data
+        bool IRQ_DMX_changeEN = false;
+        uint8_t dmxreadStart = 0;
+        uint8_t TxRx;
+        uint8_t RxCounter = 0;
+        bool newFrame = false;
+        //void IRQ_handler();
+        //bool IRQ_pending;
+        //bool *pending;
       
 };
 

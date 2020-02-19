@@ -1,4 +1,6 @@
 /*  CRMX library for Arduino
+ 
+    Version 0.1.32
     Copyright (C) 2020 MC-productions 
     Marc Colemont (marc.colemont@mc-productions.be)
 
@@ -26,6 +28,10 @@
 
  #include "CRMX_TimoTwo.h"
 
+ //#include <Arduino.h>
+ //#include <SPI.h>
+ 
+
 CRMX_TimoTwo::CRMX_TimoTwo() {}
 
 CRMX_TimoTwo * CRMX_TimoTwo::instance0_ = NULL;
@@ -35,6 +41,9 @@ void CRMX_TimoTwo::begin(uint8_t interruptPin, uint8_t SPIpin)
 {
     _SSPin  = SPIpin;
     _IRQPin = interruptPin;
+    
+    IRQen = 1;
+    IRQ_mode = 1;
     
   pinMode(_SSPin, OUTPUT);
   digitalWrite(_SSPin, HIGH); 
@@ -57,21 +66,58 @@ void CRMX_TimoTwo::begin(uint8_t interruptPin, uint8_t SPIpin)
         SerialUSB.println(_IRQPin);
     }
     
+   IRQ_mode = 1;
+    
 }
 
 void CRMX_TimoTwo::isr0 (){
-    if (CRMX_TimoTwo::instance0_ != NULL){
-        CRMX_TimoTwo::instance0_->IRQ_handler();
-        
-    }
+    
+    
+            if (CRMX_TimoTwo::instance0_ != NULL){
+                CRMX_TimoTwo::instance0_->IRQ_handler();
+                
+            }
+    
 }  // end
 
 void CRMX_TimoTwo::IRQ_handler(){
          
-    IRQ_pending = true;
+    
+            if (IRQ_mode == 1){
+                      
+                        newFrame = true;
+                       
+            } else {
+                
+                        IRQ_pending = true;
+            }
           
 }
 
+void CRMX_TimoTwo::enableIRQ(int c){
+    
+    
+    //if (c <= 1){
+        IRQen = c;
+        
+        if (DEBUG >=1){
+            SerialUSB.print("IRQen : ");
+            SerialUSB.println(IRQen);
+        }
+    //}
+    
+}
+
+uint8_t CRMX_TimoTwo::newEventIRQ(){
+    
+    noInterrupts();
+    bool pending = newFrame;
+    newFrame = false;
+    interrupts();
+    return pending;
+    
+    
+}
 
 
 void CRMX_TimoTwo::setCONFIG(bool a, bool b, bool c){
@@ -83,9 +129,11 @@ void CRMX_TimoTwo::setCONFIG(bool a, bool b, bool c){
   bitWrite(_dataBuffer[0], 1, b); // RADIO_TX_RX_MODEbit
   bitWrite(_dataBuffer[0], 7, c); // RADIO_ENABLEbit
 
-  
+    TxRx = b;
   
     writeRegister(CONFIG, 1); // tranmit to CRMX module
+    
+   
         
         if (_CRMXbusy == true){
              writeRegister(CONFIG, 1); // try again
@@ -94,21 +142,26 @@ void CRMX_TimoTwo::setCONFIG(bool a, bool b, bool c){
      SerialUSB.print("setCONFIG data: ");
      SerialUSB.println(_dataBuffer[0]);
  }
+    
 }
 
 
 bool CRMX_TimoTwo::IRQ_detected(){
     
-    noInterrupts();
-    bool pending = IRQ_pending;
-    IRQ_pending = false;
-    interrupts();
-    return pending;
+    
+            noInterrupts();
+            bool pending = IRQ_pending;
+            IRQ_pending = false;
+            interrupts();
+            return pending;
+    
     
 }
                   
                   
 void CRMX_TimoTwo::setSTATUS(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h){
+    
+    
     
     bitWrite(_dataBuffer[0], 0, a);
     bitWrite(_dataBuffer[0], 1, b);
@@ -121,6 +174,7 @@ void CRMX_TimoTwo::setSTATUS(bool a, bool b, bool c, bool d, bool e, bool f, boo
     
   
   writeRegister(STATUS, 1); // tranmit to CRMX module
+  
     
         if (_CRMXbusy == true){
              writeRegister(STATUS, 1); // try again
@@ -130,27 +184,34 @@ void CRMX_TimoTwo::setSTATUS(bool a, bool b, bool c, bool d, bool e, bool f, boo
         SerialUSB.print("setSTATUS data: ");
         SerialUSB.println(_dataBuffer[0]);
     }
+    
 }
 
 
 void CRMX_TimoTwo::setDMX_CONTROL(byte CRMXdata){
+    
+    
 
   _dataBuffer[0] = CRMXdata;
     
-  
- writeRegister(DMX_CONTROL, 1); // tranmit command to CRMX module, amount of bytes
+        writeRegister(DMX_CONTROL, 1); // tranmit command to CRMX module, amount of bytes
+    
+    
       
-      if (_CRMXbusy == true){
-           writeRegister(DMX_CONTROL, 1); // try again
-      }
-  if (DEBUG >=2 && _CRMXbusy == false){
-      SerialUSB.print("setDMX_CONTROL data: ");
-      SerialUSB.println(_dataBuffer[0]);
-  }
+              if (_CRMXbusy == true){
+                   writeRegister(DMX_CONTROL, 1); // try again
+              }
+          if (DEBUG >=2 && _CRMXbusy == false){
+              SerialUSB.print("setDMX_CONTROL data: ");
+              SerialUSB.println(_dataBuffer[0]);
+          }
+    
 }
 
 
 void CRMX_TimoTwo::setDMX_SPEC(uint32_t REFRESH, uint16_t INTERSLOT, uint16_t AmountCHANNELS){
+    
+    
     
     _dataBuffer[0] = AmountCHANNELS >> 8;
     _dataBuffer[1] = AmountCHANNELS;
@@ -192,6 +253,7 @@ void CRMX_TimoTwo::setDMX_SPEC(uint32_t REFRESH, uint16_t INTERSLOT, uint16_t Am
     
 
     writeRegister(DMX_SPEC, 1); // tranmit to CRMX module, 8x one byta of data
+    
 
         if (_CRMXbusy == true){
              writeRegister(DMX_SPEC, 8); // try again
@@ -204,11 +266,14 @@ void CRMX_TimoTwo::setDMX_SPEC(uint32_t REFRESH, uint16_t INTERSLOT, uint16_t Am
 
 
 void CRMX_TimoTwo::setRF_POWER(byte CRMXdata){
+    
+    
 
   _dataBuffer[0] = CRMXdata;
-    
   
-  writeRegister(RF_POWER, 1); // tranmit command to CRMX module, amount of bytes
+        writeRegister(RF_POWER, 1); // tranmit command to CRMX module, amount of bytes
+    
+    
       
     if (_CRMXbusy == true){
            writeRegister(RF_POWER, 1); // try again
@@ -218,12 +283,14 @@ void CRMX_TimoTwo::setRF_POWER(byte CRMXdata){
         SerialUSB.print("setRF-POWER data: ");
         SerialUSB.println(_dataBuffer[0]);
     }
+    
 }
 
 
 void CRMX_TimoTwo::setIRQ_MASK(bool a, bool b, bool c, bool d, bool e, bool f)
 {
-
+    
+    
      _dataBuffer[0] = 0b00000000;
     bitWrite(_dataBuffer[0], 0, a); // RX_DMX_IRQ_ENbit
     bitWrite(_dataBuffer[0], 1, b); // LOST_DMX_IRQ_ENbit
@@ -234,8 +301,12 @@ void CRMX_TimoTwo::setIRQ_MASK(bool a, bool b, bool c, bool d, bool e, bool f)
 //    bitWrite(_dataBuffer[0], 6,  LOST_DMX_IRQ_EN);
 //    bitWrite(_dataBuffer[0], 7, LOST_DMX_IRQ_EN)
     
-  
-   writeRegister(IRQ_MASK, 1); // tranmit to CRMX module, one byta of data
+    IRQ_DMX_changeEN = c;
+    
+    
+        writeRegister(IRQ_MASK, 1); // tranmit to CRMX module, one byta of data
+    
+    
   
       if (_CRMXbusy == true){
            writeRegister(IRQ_MASK, 1); // try again
@@ -244,10 +315,13 @@ void CRMX_TimoTwo::setIRQ_MASK(bool a, bool b, bool c, bool d, bool e, bool f)
       SerialUSB.print("setMASK data: ");
       SerialUSB.println(_dataBuffer[0]);
   }
+    
 }
 
 
 void CRMX_TimoTwo::setDMX_WINDOW(int16_t address, int16_t windowsize){
+    
+    
 
       _dataBuffer[0] = windowsize >> 8;;
       _dataBuffer[1] = windowsize;
@@ -258,7 +332,9 @@ void CRMX_TimoTwo::setDMX_WINDOW(int16_t address, int16_t windowsize){
     START_ADDRESS_WINDOW = address;
       
     
-     writeRegister(DMX_WINDOW, 4); // tranmit to CRMX module, one byta of data
+            writeRegister(DMX_WINDOW, 4); // tranmit to CRMX module, one byta of data
+    
+    
     
         if (_CRMXbusy == true){
              writeRegister(DMX_WINDOW, 4); // try again
@@ -273,15 +349,21 @@ void CRMX_TimoTwo::setDMX_WINDOW(int16_t address, int16_t windowsize){
         //SerialUSB.print(_dataBuffer[2]);
         //SerialUSB.println(_dataBuffer[3]);
     }
+    
+    
 }
 
 
 void CRMX_TimoTwo::setBATTERY_LEVEL(byte level){
+    
+    
 
       _dataBuffer[0] = level;
    
     
      writeRegister(BATTERY_LEVEL, 1); // tranmit to CRMX module, one byta of data
+    
+    
     
         if (_CRMXbusy == true){
              writeRegister(BATTERY_LEVEL, 1); // try again
@@ -292,16 +374,29 @@ void CRMX_TimoTwo::setBATTERY_LEVEL(byte level){
 
 
 uint8_t CRMX_TimoTwo::getCONFIG(){
+    
+    
 
-  readRegister(CONFIG, 1); // get data from CRMX module
+        readRegister(CONFIG, 1); // get data from CRMX module
+    
+    
 
       if (_CRMXbusy == true){
            readRegister(CONFIG, 1); // try again
+          
       }
 
   return (_dataBuffer[0]);
   
-         
+          // Read received variables
+        /*  
+           UART_EN          = bitRead(dataBuffer[0], 0);
+           RADIO_TX_RX_MODE = bitRead(dataBuffer[0], 1);
+           RADIO_ENABLE     = bitRead(dataBuffer[0], 7);
+          
+        */
+    
+   
 }
 
 
@@ -310,23 +405,40 @@ uint8_t CRMX_TimoTwo::getCONFIG(){
 
 
 uint8_t CRMX_TimoTwo::getSTATUS(){
+    
+    
 
-  readRegister(STATUS, 1); // get data from CRMX module
+        readRegister(STATUS, 1); // get data from CRMX module
+    
+    
 
       if (_CRMXbusy == true){
            readRegister(CONFIG, 1); // try again
+           
       }
 
   return (_dataBuffer[0]);
   
-         
+          // Read received variables
+        /*  
+           UART_EN          = bitRead(dataBuffer[0], 0);
+           RADIO_TX_RX_MODE = bitRead(dataBuffer[0], 1);
+           RADIO_ENABLE     = bitRead(dataBuffer[0], 7);
+          
+        */
+    
+   
 }
 
 
 uint8_t CRMX_TimoTwo::getVersionNumber(int8_t versionData){
+    
+   
 
       readRegister(VERSION, 8); // get data from CRMX module
-        
+    
+    
+    
             if (_CRMXbusy == true){
                  readRegister(VERSION, 8); // try again
             }
@@ -334,14 +446,19 @@ uint8_t CRMX_TimoTwo::getVersionNumber(int8_t versionData){
       if (versionData <= 8){
         int value = _dataBuffer[versionData];     
              return (value);
-      } 
+      }
+    
   
 }
 
 
 uint8_t CRMX_TimoTwo::getDMX_SPEC(int8_t dmxData){
+    
+    
 
       readRegister(DMX_SPEC, 8); // get data from CRMX module
+    
+    
         
             if (_CRMXbusy == true){
                  readRegister(DMX_SPEC, 8); // try again
@@ -351,14 +468,20 @@ uint8_t CRMX_TimoTwo::getDMX_SPEC(int8_t dmxData){
         int value = _dataBuffer[dmxData];
              return (value);
       }
+    
+    
   
 }
 
 
 
 uint8_t CRMX_TimoTwo::getDMX_WINDOW(byte data){
+    
+    
 
       readRegister(DMX_WINDOW, 4); // get data from CRMX module
+    
+    
         
             if (_CRMXbusy == true){
                  readRegister(DMX_WINDOW, 4); // try again
@@ -368,43 +491,63 @@ uint8_t CRMX_TimoTwo::getDMX_WINDOW(byte data){
         int value = _dataBuffer[data];
              return (value);
       }
+    
+    
   
 }
 
 
 uint8_t CRMX_TimoTwo::getLINK_QUALITY(){
+    
+    
 
       readRegister(LINK_QUALITY, 1); // get data from CRMX module
+    
+    
     
             if (_CRMXbusy == true){
                  readRegister(LINK_QUALITY, 1); // try again
             }
       return (_dataBuffer[0]);
+    
+    
   
 }
 
 
 
 uint8_t CRMX_TimoTwo::getRF_POWER(){
+    
+    
 
       readRegister(RF_POWER, 1); // get data from CRMX module
+    
+    
     
             if (_CRMXbusy == true){
                  readRegister(RF_POWER, 1); // try again
             }
       return (_dataBuffer[0]);
+    
+    
 
   
 }
 
 uint8_t CRMX_TimoTwo::getIRQ_MASK(){
 
-      
+    
+    
       readRegister(IRQ_MASK, 1); // get data from CRMX module
+    
+    
+    
             if (_CRMXbusy == true){
                  readRegister(IRQ_MASK, 1); // try again
             }
       return (_dataBuffer[0]);
+    
+    
 
   
 }
@@ -412,22 +555,30 @@ uint8_t CRMX_TimoTwo::getIRQ_MASK(){
 uint8_t CRMX_TimoTwo::getIRQ_FLAGS(){
 
       
+    
       readRegister(IRQ_FLAGS, 1); // get data from CRMX module
+    
+      
+    
             if (_CRMXbusy == true){
                  readRegister(IRQ_FLAGS, 1); // try again
             }
       return (_dataBuffer[0]);
+    
+    
   
 }
 
 
 uint8_t CRMX_TimoTwo::getIRQ(){
+    
+    
 
    noInterrupts();
 
       SPI.beginTransaction(TimoTwo_Settings);
 
-
+        IRQ_mode = 1;
           _CRMXbusy = false;
           // command byte
           digitalWrite(_SSPin, LOW);
@@ -455,6 +606,8 @@ uint8_t CRMX_TimoTwo::getIRQ(){
        SPI.endTransaction();
 
   interrupts();
+    
+    IRQ_mode = 1;
   
 }
 
@@ -495,12 +648,15 @@ void CRMX_TimoTwo::writeDMX(int16_t index, byte value)
 void CRMX_TimoTwo::transmitDMX()
 {  // Tranmit DMX universe
     
+    IRQ_mode = 0;
     
     int error = -1;
     byte counter = 0;
     bool firsttime = true;
     
     if (DEBUG >=3){SerialUSB.println("Transmitting DMX");}
+
+    //if (RADIO_TX_RX_MODE == true){ // if radio is set as transmitter
     
     // try upto 3x if error occurs
     while (error < 0 && counter < 3){
@@ -566,7 +722,7 @@ void CRMX_TimoTwo::transmitDMX()
     
     }
     
-
+  IRQ_mode = 1;
    //return 0; // all OK
   
 }
@@ -580,6 +736,7 @@ void CRMX_TimoTwo::getDMX(){  // Tranmit DMX universe
     int error = -1;
     byte counter = 0;
     bool firsttime = true;
+    IRQ_mode = 0;
 
     //if (RADIO_TX_RX_MODE == false){ // if radio is set as receiver
     
@@ -622,7 +779,8 @@ void CRMX_TimoTwo::getDMX(){  // Tranmit DMX universe
                               }
                                 
                                 // read DMX values into _DMX[i] based on channel_start value
-                                  readRegister(READ_DMX, channels);
+                                IRQ_mode = 0;
+                                readRegister(READ_DMX, channels);
                             if (_CRMXbusy == true){
                                 error = -1;
                             }
@@ -646,8 +804,8 @@ void CRMX_TimoTwo::getDMX(){  // Tranmit DMX universe
         _CRMXbusy = true;
     
     }
-    
-    readRegister(IRQ_MASK, 1); // refresh command before reading DMX again
+    IRQ_mode = 1;
+    //readRegister(IRQ_MASK, 1); // refresh command before reading DMX again
     
 }
 
@@ -656,6 +814,8 @@ uint8_t CRMX_TimoTwo::readRegister(byte command, byte length){
     
     currentMillisTime  = millis();
     previousMillisCRMX = currentMillisTime;
+    
+    
     
 
       SPI.beginTransaction(TimoTwo_Settings);
@@ -700,31 +860,44 @@ uint8_t CRMX_TimoTwo::readRegister(byte command, byte length){
                   SerialUSB.print("ERROR 1 IRQ_flag data: ");
                   SerialUSB.println(IRQ_flagData);
               }
+            
             return -1 ;
           }
     
             
 
           // check interrupt to go low within a certain time
-          delayMicroseconds(100);  // default delay
-   
+          
+    
+    //delayMicroseconds(800);  // default delay
+    
+          
+
+//                while ((digitalRead(_IRQPin)) == HIGH &&
+//                       (currentMillisTime - previousMillisCRMX <= intervalCRMX)){
+//                    currentMillisTime  = millis();
+    
                  while(!IRQ_detected()) {
                      
+                     IRQ_mode = 0;
                      // Check if Timeout occured
                      if (currentMillisTime - previousMillisCRMX >= intervalCRMX){
                        _CRMXbusy = true;
+                        
                          if (DEBUG >=1){
                              SerialUSB.println("ERROR Timeout ");
                          }
+                       IRQ_mode = 1;
                        return -1 ;
                      }
                      
                  }
-                        
+                //if (!READ_DMX){IRQ_mode = 1;}
+                 IRQ_mode = 1;
                 
     
                         
-     
+     delayMicroseconds(200);  // default delay
     // if the command is other then NOP
     if (command != NOP){
               // Receive data
@@ -743,6 +916,7 @@ uint8_t CRMX_TimoTwo::readRegister(byte command, byte length){
                                      SerialUSB.print("ERROR 2 IRQ_flag data: ");
                                      SerialUSB.println(IRQ_flagData);
                                  }
+                               
                                return -1 ;
                              }
                 
@@ -756,6 +930,9 @@ uint8_t CRMX_TimoTwo::readRegister(byte command, byte length){
                                             // Data bytes to receive and store in the dataBuffer
                                             for (int16_t i=channel_start; i<length+channel_start; i++){
                                               _DMX[i] = SPI.transfer(NOP); // Send command byte and read this first byte IRQ_flags
+                                                
+                                                //if (i == WINDOW_SIZE){IRQ_mode = 1;}
+                                                
                                                 if (DEBUG >=2){
                                                     SerialUSB.print("DMX ");
                                                     SerialUSB.print(i);
@@ -787,9 +964,11 @@ uint8_t CRMX_TimoTwo::readRegister(byte command, byte length){
 
 
        SPI.endTransaction();
+    
+       
        return 0; // all OK
 
-
+    
   
 }
 
@@ -799,6 +978,7 @@ uint8_t CRMX_TimoTwo::writeRegister(byte command, byte length){
     currentMillisTime  = millis();
     previousMillisCRMX = currentMillisTime;
     int _counter = 0;
+    
 
       SPI.beginTransaction(TimoTwo_Settings);
 
@@ -844,26 +1024,30 @@ uint8_t CRMX_TimoTwo::writeRegister(byte command, byte length){
                   SerialUSB.print("ERROR 1 IRQ_flag data: ");
                   SerialUSB.println(IRQ_flagData);
               }
+            
             return (_CRMXbusy) ;
           }
 
           // check interrupt to go low within a certain time
           
+    
                                 while(!IRQ_detected()) {
-                                    
+                                    IRQ_mode = 0;
                                     // Check if Timeout occured
                                     if (currentMillisTime - previousMillisCRMX >= intervalCRMX){
                                       _CRMXbusy = true;
                                         if (DEBUG >=1){
                                             SerialUSB.println("ERROR Timeout ");
                                         }
+                                      IRQ_mode = 1;
                                       return -1 ;
                                     }
                                     
                                 }
+                                IRQ_mode = 1;
      
          
-            
+        delayMicroseconds(200);  // default delay
           // Receive data
          digitalWrite(_SSPin, LOW);
           
@@ -876,6 +1060,7 @@ uint8_t CRMX_TimoTwo::writeRegister(byte command, byte length){
                 // Check if CRMX is busy
                          if (bitRead (IRQ_flagData, 7) == HIGH){
                            _CRMXbusy = true;
+                           
                            return (_CRMXbusy) ;
                              if (DEBUG >=1){
                                  SerialUSB.print("ERROR 2 IRQ_flag data: ");
@@ -911,13 +1096,18 @@ uint8_t CRMX_TimoTwo::writeRegister(byte command, byte length){
                         }
       
           digitalWrite(_SSPin, HIGH);
+            
+          
           
           delayMicroseconds(500);  // default delay
 
 
        SPI.endTransaction();
+    
+        
     return 0; // all OK
 
+//interrupts();
   
 }
 
