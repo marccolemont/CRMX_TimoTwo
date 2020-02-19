@@ -36,6 +36,10 @@
 int DEBUG = 1;
 
 #include <CRMX_TimoTwo.h>
+#include <CCU_decoder.h>
+
+
+
 
 // when using ZERO boards MKR
 #include <sam.h>
@@ -44,6 +48,10 @@ int DEBUG = 1;
 // CONFIG
 int _IRQPin = 6;
 int _SSPin  = 7;
+
+// DMX Fixture window
+int16_t START_ADDRESS_WINDOW = 0;    
+int16_t WINDOW_SIZE = 10;
 
 bool UART_EN = 1; // External DMX output on 6-pin header
 bool RADIO_ENABLE = 1; 
@@ -79,8 +87,7 @@ bool IDENTIFY_IRQ_ENbit     = 0;
 
 #define UPDATE_MODE_MASK      (1 << 7)
 
-int16_t START_ADDRESS_WINDOW = 0;    
-int16_t WINDOW_SIZE = 10;
+
 
 byte _dataBuffer[11]; // buffer readout for multiple commands
 byte DMX[513];
@@ -136,9 +143,7 @@ void setup() {
    // Read Hardware & Software version 
    detectTimoTwo(); // Detect CRMX board and show version numbers if debug =1
    checkDMXconfig();
-   if (DEBUG >=1){SerialUSB.println("Changing DMX window to 1, 64, then readout again");}
-   timotwo.setDMX_WINDOW(START_ADDRESS_WINDOW, WINDOW_SIZE); // create window in DMX receiver which returns an interrupt when set
-   checkDMXconfig();
+   
     
    delay(1000);
 
@@ -147,9 +152,9 @@ void setup() {
 void loop() {
 
 
-
-      if (timotwo.IRQ_detected()){
-          // Read IRQ Flags
+      // Read IRQ Flags
+      if (timotwo.newEventIRQ()){
+          
               
               /*
               RX_DMX_IRQbit         0 // Complete DMX frame received interrupt (0)
@@ -170,6 +175,7 @@ void loop() {
                                     } else {
                                       SerialUSB.print('0');
                                     }
+                                    SerialUSB.println("");
                               }
                           }
                
@@ -193,7 +199,7 @@ void RF_LINK_changed(){
 
   byte value = timotwo.getLINK_QUALITY();
 
-  if (DEBUG >= 1){
+  if (DEBUG >= 2){
       
       SerialUSB.print("RF Link quality: ");
       SerialUSB.println(value);
@@ -214,17 +220,17 @@ void checkDMXconfig(){
          }
       
           
-          if (DEBUG >= 1){
+           if (DEBUG >= 1){
             
             SerialUSB.println("DMX WINDOW settings:");
             SerialUSB.println("-------------");
               SerialUSB.print("Start Address: ");
       
-              int16_t start    = (value[0] << 8) + value [1];
+              int16_t start    = (value[2] << 8) + value [3];
                   SerialUSB.println(start);
             
                   SerialUSB.print("Window size: ");
-              int16_t channels = (value[2] << 8) + value [3];
+              int16_t channels = (value[0] << 8) + value [1];
                   SerialUSB.println(channels);
             
             
@@ -257,7 +263,7 @@ void checkDMX(){
     
       if (changed == true)
       {
-        //setColor(DMX[1], DMX[2], DMX[3]); 
+        
         changed = false; 
       
           if (DEBUG >= 1){
